@@ -39,7 +39,7 @@ public:
     Topic topic() override { return _topic; }
     T value() { return _value; }
 private:
-    Event(Topic topic, T value) : _value(value), _topic(topic) {}
+    Event(Topic topic, T value) : _topic(topic), _value(value) {}
     Topic _topic;
     T _value;
 
