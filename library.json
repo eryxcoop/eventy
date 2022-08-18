@@ -1,0 +1,37 @@
+{
+  "name": "eventy",
+  "version": "1.0.0",
+  "description": "A framework for event-driven architectures",
+  "keywords": "event, topic, pubsub",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/eryxcoop/eventy.git"
+  },
+  "authors": [
+    {
+      "name": "Lucas Rodriguez",
+      "email": "lrodriguez@eryx.co",
+      "url": "https://eryx.co",
+      "maintainer": true
+    },
+    {
+      "name": "Matias Dinota",
+      "email": "mdinota@eryx.co",
+      "url": "https://eryx.co",
+      "maintainer": true
+    },
+    {
+      "name": "Sergio Chouhy",
+      "email": "schouhy@eryx.co",
+      "url": "https://eryx.co",
+      "maintainer": true
+    }
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/eryxcoop/eventy.git",
+  "frameworks": "arduino",
+  "platforms": [
+    "espressif8266",
+    "espressif32"
+  ]
+}
