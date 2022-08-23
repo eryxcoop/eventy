@@ -1,6 +1,6 @@
 {
   "name": "eventy",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A framework for event-driven architectures",
   "keywords": "event, topic, pubsub",
   "repository": {

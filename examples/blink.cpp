@@ -16,6 +16,7 @@ EventCollection toggleLed() {
 void setup() {
     pinMode(LED_BUILTIN, OUTPUT);
     eventy_manager.registerTask(toggleLed, 1000);
+    vTaskDelete(NULL);
 }
 
 void loop() {
