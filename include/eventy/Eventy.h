@@ -7,6 +7,7 @@
 #include "EventHandler.h"
 #include "Task.h"
 #include "FunctionTask.h"
+#include "TimeoutTask.h"
 
 #define MAX_ALLOWED_FUNCTION_TASKS 20
 #define MAIN_EVENTS_QUEUE_MAX_SIZE 300
@@ -27,6 +28,10 @@ public:
     TaskHandle_t registerTask(EventCollection(*function)(void), unsigned int timer_delay_in_ms,
                               const char *name = DEFAULT_TASK_NAME, int stack_size = DEFAULT_TASK_STACK_SIZE,
                               UBaseType_t priority = tskIDLE_PRIORITY, BaseType_t core = DEFAULT_TASK_CORE);
+    TaskHandle_t registerHardwareInterrupt(int pin, EventCollection(*function)(void), int debounce_ms = 100,
+                                           int pin_mode = INPUT_PULLUP, int interrupt_mode = FALLING,
+                                           const char *name = DEFAULT_TASK_NAME, int stack_size = DEFAULT_TASK_STACK_SIZE,
+                                           UBaseType_t priority = tskIDLE_PRIORITY, BaseType_t core = DEFAULT_TASK_CORE);
     BaseType_t registerEventHandler(Topic topic, EventHandler *message_handler);
     template<class T>
     EventHandler *registerEventHandler(Topic topic, EventCollection(*function)(Event<T>));
@@ -39,8 +44,9 @@ private:
 
     BaseType_t getFreeSpot(int &index);
     BaseType_t getTaskHandleIndex(TaskHandle_t task_handle, int &index);
+    TaskHandle_t initializeFunctionTask(TaskHandle_t task_handle, Task *task);
 
-    TaskData _task_table[MAX_ALLOWED_FUNCTION_TASKS];
+    TaskData _function_task_table[MAX_ALLOWED_FUNCTION_TASKS];
     QueueHandle_t _event_queue = nullptr;
     QueueTXHandler *_event_tx_handler = nullptr;
     QueueRXHandler *_event_rx_handler = nullptr;

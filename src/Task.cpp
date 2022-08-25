@@ -73,6 +73,13 @@ TaskRunner::begin(
     return _task_data_table[index].task_handle;
 }
 
+void TaskRunner::stop(xTaskHandle task_handle) {
+    int index;
+    getTaskHandleIndex(task_handle, index);
+    _task_data_table[index].unset();
+    vTaskDelete(task_handle);
+}
+
 void TaskRunner::run(void *parameter) {
     TaskData *running_task_data = static_cast<TaskData *>(parameter);
     Task *task = running_task_data->task;

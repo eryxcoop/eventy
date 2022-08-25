@@ -22,6 +22,7 @@ public:
     ~TaskRunner();
     TaskHandle_t begin(Task *task, unsigned int _timer_delay_in_ms, const char *name,
                        int stack_size, UBaseType_t priority, BaseType_t core);
+    void stop(TaskHandle_t task_handle);
 private:
     class TaskData {
     public:
