@@ -22,8 +22,8 @@ Eventy::Eventy(unsigned int poll_delay_in_ms, int stack_size, BaseType_t core) {
 
 Eventy::~Eventy() {
     for (int i = 0; i < MAX_ALLOWED_FUNCTION_TASKS; i++) {
-        if (_task_table[i].task_handle != nullptr) {
-            delete _task_table[i].task;
+        if (_function_task_table[i].task_handle != nullptr) {
+            delete _function_task_table[i].task;
         }
     }
     delete _event_manager;
@@ -35,7 +35,7 @@ Eventy::~Eventy() {
 
 BaseType_t Eventy::getTaskHandleIndex(TaskHandle_t task_handle, int &index) {
     for (int i = 0; i < MAX_ALLOWED_FUNCTION_TASKS; i++) {
-        if (_task_table[i].task_handle == task_handle) {
+        if (_function_task_table[i].task_handle == task_handle) {
             index = i;
             return pdTRUE;
         }
@@ -47,6 +47,21 @@ BaseType_t Eventy::getFreeSpot(int &index) {
     return getTaskHandleIndex(nullptr, index);
 }
 
+TaskHandle_t Eventy::initializeFunctionTask(TaskHandle_t task_handle, Task *task) {
+    int index;
+    if ((getFreeSpot(index) == pdFALSE) || (task_handle == nullptr)) {
+        if (task_handle != nullptr) {
+            _task_runner->stop(task_handle);
+        }
+        delete task;
+        return nullptr;
+    }
+
+    _function_task_table[index].task = task;
+    _function_task_table[index].task_handle = task_handle;
+    return task_handle;
+}
+
 TaskHandle_t Eventy::registerTask(
         Task *task,
         unsigned int timer_delay_in_ms,
@@ -54,11 +69,7 @@ TaskHandle_t Eventy::registerTask(
         int stack_size,
         UBaseType_t priority,
         BaseType_t core) {
-    int free_index;
-    if (getFreeSpot(free_index) == pdFALSE) {
-        return nullptr;
-    }
-
+    
     return _task_runner->begin(task, timer_delay_in_ms, name, stack_size, priority, core);
 }
 
@@ -70,16 +81,26 @@ TaskHandle_t Eventy::registerTask(
         UBaseType_t priority,
         BaseType_t core) {
     Task *task = new FunctionTask(function);
-    TaskHandle_t task_handle = registerTask(task, timer_delay_in_ms, name, stack_size, priority, core);
-    int index;
-    if ((task_handle != nullptr) && (getFreeSpot(index) != pdFALSE)) {
-        _task_table[index].task = task;
-        _task_table[index].task_handle = task_handle;
-        return task_handle;
-    }
+    return initializeFunctionTask(registerTask(task, timer_delay_in_ms, name, stack_size, priority, core), task);
+}
 
-    delete task;
-    return nullptr;
+TaskHandle_t Eventy::registerHardwareInterrupt(
+        int pin,
+        EventCollection(*function)(void),
+        int debounce_ms,
+        int pin_mode,
+        int interrupt_mode,
+        const char *name,
+        int stack_size,
+        UBaseType_t priority,
+        BaseType_t core) {
+    Task *task = new TimeoutTask(function, debounce_ms);
+    TaskHandle_t task_handle = initializeFunctionTask(registerTask(task, 5, name, stack_size, priority, core), task);
+    if (task_handle != nullptr) {
+        pinMode(pin, pin_mode);
+        attachInterruptArg(digitalPinToInterrupt(pin), [](TaskHandle_t handle){xTaskResumeFromISR(handle);}, task_handle, interrupt_mode);
+    }
+    return task_handle;
 }
 
 }
