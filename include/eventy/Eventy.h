@@ -21,12 +21,20 @@ public:
     Eventy(unsigned int poll_delay_in_ms = 5, int stack_size = 4096, BaseType_t core = 1);
     ~Eventy();
     QueueTXHandler *getEventTXHandler();
-    TaskHandle_t registerTask(Task *task, unsigned int timer_delay_in_ms, const char *name = DEFAULT_TASK_NAME,
+    TaskHandle_t registerTimerTask(Task *task, unsigned int timer_delay_in_ms, const char *name = DEFAULT_TASK_NAME,
                               int stack_size = DEFAULT_TASK_STACK_SIZE, UBaseType_t priority = tskIDLE_PRIORITY,
                               BaseType_t core = DEFAULT_TASK_CORE);
-    TaskHandle_t registerTask(EventCollection(*function)(void), unsigned int timer_delay_in_ms,
+    TaskHandle_t registerTimerTask(EventCollection(*function)(void), unsigned int timer_delay_in_ms,
                               const char *name = DEFAULT_TASK_NAME, int stack_size = DEFAULT_TASK_STACK_SIZE,
                               UBaseType_t priority = tskIDLE_PRIORITY, BaseType_t core = DEFAULT_TASK_CORE);
+    TaskHandle_t registerHardwareInterruptTask(Task *task, int pin, int debounce_ms, int pin_mode, 
+                              int interrupt_mode, const char *name = DEFAULT_TASK_NAME,
+                              int stack_size = DEFAULT_TASK_STACK_SIZE, UBaseType_t priority = tskIDLE_PRIORITY,
+                              BaseType_t core = DEFAULT_TASK_CORE);
+    TaskHandle_t registerHardwareInterruptTask(EventCollection(*function)(void), int pin, int debounce_ms, 
+                              int pin_mode, int interrupt_mode, const char *name = DEFAULT_TASK_NAME,
+                              int stack_size = DEFAULT_TASK_STACK_SIZE, UBaseType_t priority = tskIDLE_PRIORITY,
+                              BaseType_t core = DEFAULT_TASK_CORE);
     BaseType_t registerEventHandler(Topic topic, EventHandler *message_handler);
     template<class T>
     EventHandler *registerEventHandler(Topic topic, EventCollection(*function)(Event<T>));

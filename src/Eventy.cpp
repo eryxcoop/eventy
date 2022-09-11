@@ -17,7 +17,7 @@ Eventy::Eventy(unsigned int poll_delay_in_ms, int stack_size, BaseType_t core) {
     _task_runner = new TaskRunner(_event_tx_handler);
     _event_manager = new QueueBroker(_event_rx_handler);
     // TODO: Check that the following succeeds and if not somehow inform the user
-    registerTask(_event_manager, poll_delay_in_ms, "Eventy::EventManager", stack_size, core);
+    registerTimerTask(_event_manager, poll_delay_in_ms, "Eventy::EventManager", stack_size, core);
 }
 
 Eventy::~Eventy() {
@@ -47,7 +47,7 @@ BaseType_t Eventy::getFreeSpot(int &index) {
     return getTaskHandleIndex(nullptr, index);
 }
 
-TaskHandle_t Eventy::registerTask(
+TaskHandle_t Eventy::registerTimerTask(
         Task *task,
         unsigned int timer_delay_in_ms,
         const char *name,
@@ -59,10 +59,10 @@ TaskHandle_t Eventy::registerTask(
         return nullptr;
     }
 
-    return _task_runner->begin(task, timer_delay_in_ms, name, stack_size, priority, core);
+    return _task_runner->beginTimerTask(task, timer_delay_in_ms, name, stack_size, priority, core);
 }
 
-TaskHandle_t Eventy::registerTask(
+TaskHandle_t Eventy::registerTimerTask(
         EventCollection(*function)(void),
         unsigned int timer_delay_in_ms,
         const char *name,
@@ -70,7 +70,48 @@ TaskHandle_t Eventy::registerTask(
         UBaseType_t priority,
         BaseType_t core) {
     Task *task = new FunctionTask(function);
-    TaskHandle_t task_handle = registerTask(task, timer_delay_in_ms, name, stack_size, priority, core);
+    TaskHandle_t task_handle = registerTimerTask(task, timer_delay_in_ms, name, stack_size, priority, core);
+    int index;
+    if ((task_handle != nullptr) && (getFreeSpot(index) != pdFALSE)) {
+        _task_table[index].task = task;
+        _task_table[index].task_handle = task_handle;
+        return task_handle;
+    }
+
+    delete task;
+    return nullptr;
+}
+
+TaskHandle_t Eventy::registerHardwareInterruptTask(
+        Task *task,
+        int pin,
+        int debounce_ms,
+        int pin_mode,
+        int interrupt_mode,
+        const char *name,
+        int stack_size,
+        UBaseType_t priority ,
+        BaseType_t core) {
+    int free_index;
+    if (getFreeSpot(free_index) == pdFALSE) {
+        return nullptr;
+    }
+
+    return _task_runner->beginHardwareInterruptTask(task, pin, debounce_ms, pin_mode, interrupt_mode, name, stack_size, priority, core);
+}
+
+TaskHandle_t Eventy::registerHardwareInterruptTask(
+        EventCollection(*function)(void),
+        int pin,
+        int debounce_ms,
+        int pin_mode,
+        int interrupt_mode,
+        const char *name,
+        int stack_size,
+        UBaseType_t priority,
+        BaseType_t core) {
+    Task *task = new FunctionTask(function);
+    TaskHandle_t task_handle = registerHardwareInterruptTask(task, pin, debounce_ms, pin_mode, interrupt_mode, name, stack_size, priority, core);
     int index;
     if ((task_handle != nullptr) && (getFreeSpot(index) != pdFALSE)) {
         _task_table[index].task = task;
