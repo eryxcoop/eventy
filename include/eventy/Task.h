@@ -43,8 +43,6 @@ private:
     QueueHandle_t _event_queue = nullptr;
 };
 
-
-
 }
 
 #endif // EVENTY_TASK_H

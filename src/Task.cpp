@@ -17,10 +17,8 @@ void ExecutionContext::run(Task* task, QueueTXHandler *queue_handler) {
     }
 }
 
-
 TimerExecutionContext::TimerExecutionContext(unsigned int timer_delay_in_ms) : _timer_delay_in_ms(timer_delay_in_ms) {
 }
-
 
 void TimerExecutionContext::execute(Task* task, QueueTXHandler *queue_handler) {
     while (1) {
@@ -33,7 +31,6 @@ void TimerExecutionContext::execute(Task* task, QueueTXHandler *queue_handler) {
         delay(_timer_delay_in_ms);
     }
 }
-
 
 HardwareInterruptExecutionContext::HardwareInterruptExecutionContext(int pin, int debounce_ms, int pin_mode, int interrupt_mode) : 
     _debounce_ms(debounce_ms), _pin_mode(pin_mode), _interrupt_mode(interrupt_mode) 
@@ -65,4 +62,3 @@ void HardwareInterruptExecutionContext::execute(Task* task, QueueTXHandler *queu
 
 
 }
-
