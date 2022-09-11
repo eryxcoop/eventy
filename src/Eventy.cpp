@@ -54,11 +54,6 @@ TaskHandle_t Eventy::registerTimerTask(
         int stack_size,
         UBaseType_t priority,
         BaseType_t core) {
-    int free_index;
-    if (getFreeSpot(free_index) == pdFALSE) {
-        return nullptr;
-    }
-
     return _task_runner->beginTimerTask(task, timer_delay_in_ms, name, stack_size, priority, core);
 }
 
@@ -92,11 +87,6 @@ TaskHandle_t Eventy::registerHardwareInterruptTask(
         int stack_size,
         UBaseType_t priority ,
         BaseType_t core) {
-    int free_index;
-    if (getFreeSpot(free_index) == pdFALSE) {
-        return nullptr;
-    }
-
     return _task_runner->beginHardwareInterruptTask(task, pin, debounce_ms, pin_mode, interrupt_mode, name, stack_size, priority, core);
 }
 

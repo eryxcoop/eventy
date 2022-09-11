@@ -6,6 +6,7 @@
 #include "Event.h"
 #include "EventHandler.h"
 #include "Task.h"
+#include "TaskRunner.h"
 #include "FunctionTask.h"
 
 #define MAX_ALLOWED_FUNCTION_TASKS 20
