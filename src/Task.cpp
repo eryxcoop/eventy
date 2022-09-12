@@ -48,14 +48,15 @@ void HardwareInterruptExecutionContext::execute(Task* task, QueueTXHandler *queu
     while (1) {
         void* dummy;
         if (xQueueReceive(_event_queue, &dummy, portMAX_DELAY) == pdTRUE) {
+            delay(_debounce_ms);
+            xQueueReset(_event_queue);
+
             EventCollection events = task->run();
 
             while (!events.isEmpty()) {
                 EventPtr event_ptr = events.pop();
                 queue_handler->send(event_ptr);
             }
-            delay(_debounce_ms);
-            xQueueReset(_event_queue);
         }
     }
 }
